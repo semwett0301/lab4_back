@@ -41,10 +41,9 @@ public class AddPointServlet extends HttpServlet {
                 jws = jsonObject.getString("jws");
                 if (!ValidateToken.validate(resp, jws, token_ejb)) return;
 
-                x = (double) jsonObject.get("x");
-                y = (double) jsonObject.get("y");
-                r = (double) jsonObject.get("r");
-
+                x = Double.parseDouble(jsonObject.getString("x"));
+                y = Double.parseDouble(jsonObject.getString("y"));
+                r = Double.parseDouble(jsonObject.getString("r"));
             } catch ( Exception e) {
                 resp.sendError(400, "Полученные данные некорректны");
                 return;

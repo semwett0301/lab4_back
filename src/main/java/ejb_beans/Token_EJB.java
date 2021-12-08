@@ -50,7 +50,7 @@ public class Token_EJB {
         } catch (MalformedJwtException | IllegalArgumentException | ExpiredJwtException e) {
             return false;
         }
-
+        System.out.println(username);
         return userDAO.checkUserExist(username);
     }
 
@@ -64,7 +64,6 @@ public class Token_EJB {
 
     private PublicKey readPublic() {
         try {
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
             File file = new File("public.pem");
 
             try (FileReader keyReader = new FileReader(file)) {
@@ -79,12 +78,11 @@ public class Token_EJB {
         }
     }
 
-        private PrivateKey readPrivate () {
+        private PrivateKey readPrivate() {
             try {
                 Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
 
-                ClassLoader classLoader = ClassLoader.getSystemClassLoader();
                 File file = new File("key.pem");
                 PEMParser pemParser = new PEMParser(new FileReader(file));
 

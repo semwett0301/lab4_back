@@ -28,8 +28,10 @@ public class PointDataBaseManager implements PointDAO{
         if (sessionFactory != null) {
             try {
                 Session session = sessionFactory.openSession();
+                System.out.println("Lox");
                 session.save(point);
                 session.close();
+                return;
             } catch(Exception e) {
                 throw new DataNotUpdateException();
             }
@@ -49,6 +51,7 @@ public class PointDataBaseManager implements PointDAO{
                 query.executeUpdate();
                 transaction.commit();
                 session.close();
+                return;
             } catch (Exception e) {
                 throw new DataNotUpdateException();
             }

@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/get")
+@WebServlet("/points")
 public class GetPointsServlet extends HttpServlet {
     @EJB
     private Token_EJB token_ejb;
