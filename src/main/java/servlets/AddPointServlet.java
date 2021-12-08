@@ -12,6 +12,7 @@ import utilities.validators.ValidateToken;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,14 +32,19 @@ public class AddPointServlet extends HttpServlet {
         String json = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         JSONObject jsonObject = new JSONObject(json);
 
-        String jws;
+        Cookie[] cookies = req.getCookies();
+
+        String jws = "";
         double x;
         double y;
         double r;
 
         try {
             try {
-                jws = jsonObject.getString("jws");
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("jws")) jws = cookie.getValue();
+                }
+
                 if (!ValidateToken.validate(resp, jws, token_ejb)) return;
 
                 x = Double.parseDouble(jsonObject.getString("x"));

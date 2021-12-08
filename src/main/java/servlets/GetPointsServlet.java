@@ -12,6 +12,7 @@ import utilities.validators.ValidateToken;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,11 +29,12 @@ public class GetPointsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JSONObject jsonObject = JsonFactory.getJsonFromRequest(req);
-
-        String jws;
+        String jws = "";
+        Cookie[] cookies = req.getCookies();
         try {
-            jws = jsonObject.getString("jws");
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("jws")) jws = cookie.getValue();
+            }
         } catch (NullPointerException e) {
             resp.sendError(400, "Полученные данные некорректны");
             return;

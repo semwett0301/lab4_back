@@ -47,7 +47,7 @@ public class Token_EJB {
         String username;
         try {
             username = getUsernameFromJws(jws);
-        } catch (MalformedJwtException | IllegalArgumentException | ExpiredJwtException e) {
+        } catch (Exception e) {
             return false;
         }
         System.out.println(username);

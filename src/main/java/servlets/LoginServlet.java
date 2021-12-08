@@ -11,6 +11,7 @@ import utilities.factories.JsonFactory;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,7 +53,8 @@ public class LoginServlet extends HttpServlet {
                 }
             }
 
-            resp.getWriter().write(new JSONObject(new LoginResponse(token_ejb.generateToken(username))).toString());
+            resp.getWriter().write(new JSONObject(new LoginResponse()).toString());
+            resp.addCookie(new Cookie("jws", token_ejb.generateToken(username)));
 
         } catch (NoDataWasReceivedException e) {
             resp.sendError(500, "При работе с базой данных возникла ошибка, данные не были получены");

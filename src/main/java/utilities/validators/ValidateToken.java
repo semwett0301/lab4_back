@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import utilities.LoginResponse;
 import utilities.enum_utilities.LoginProblemEnum;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -13,7 +14,8 @@ public class ValidateToken {
     public static boolean validate(HttpServletResponse resp, String jws, Token_EJB token_ejb) throws IOException {
         try {
             if (token_ejb.checkToken(jws)) {
-                resp.getWriter().write(new JSONObject(new LoginResponse(token_ejb.refreshToken(jws))).toString());
+                resp.getWriter().write(new JSONObject(new LoginResponse()).toString());
+                resp.addCookie(new Cookie("jws", token_ejb.generateToken(token_ejb.getUsernameFromJws(jws))));
             } else {
                 resp.getWriter().write(new JSONObject(new LoginResponse(LoginProblemEnum.JWS)).toString());
                 return false;
