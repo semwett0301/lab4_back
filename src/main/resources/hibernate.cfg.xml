@@ -6,7 +6,7 @@
   <session-factory>
     <!-- Database connection settings -->
     <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-    <property name="hibernate.connection.url">jdbc:postgresql://pg:5432/studs</property>
+    <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/studs</property>
     <property name="hibernate.connection.username">s311286</property>
     <property name="hibernate.connection.password">vwd534</property>
     <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
@@ -15,6 +15,6 @@
     <property name="hibernate.connection.autocommit">true</property>
 
     <mapping class="entities.Point"/>
-    <mapping/>
+    <mapping class="entities.User"/>
   </session-factory>
 </hibernate-configuration>

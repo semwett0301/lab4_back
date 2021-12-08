@@ -1,53 +1,32 @@
 package ejb_beans;
 
-import database.UserDAO;
-import database.UserDataBaseManager;
+import database.userdao.UserDAO;
+import database.userdao.UserDataBaseManager;
 import exceptions.NoDataWasReceivedException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.Data;
-import org.json.JSONObject;
-import utilities.LoginResponse;
-import utilities.enum_utilities.CheckUserExistEnum;
-import utilities.enum_utilities.LoginProblemEnum;
+import lombok.NoArgsConstructor;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 import javax.ejb.Stateless;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+import java.io.*;
+import java.security.*;
 import java.util.Date;
 
 @Data
 @Stateless
+@NoArgsConstructor
 public class Token_EJB {
     private UserDAO userDAO = new UserDataBaseManager();
     private long limit = 1800000;
-    private PublicKey publicKey;
+    private PublicKey publicKey = readPublic();
+    private PrivateKey privateKey = readPrivate();
 
-    {
-        try {
-            publicKey = readPublic("./resources/public.pem");
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private PrivateKey privateKey;
-
-    {
-        try {
-            privateKey = readPrivate(readKey("./resources/key.pem"));
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public String generateToken(String username) {
         Date date = new Date();
@@ -65,11 +44,14 @@ public class Token_EJB {
     }
 
     public boolean checkToken(String jws) throws NoDataWasReceivedException {
-        String username = getUsernameFromJws(jws);
+        String username;
+        try {
+            username = getUsernameFromJws(jws);
+        } catch (MalformedJwtException | IllegalArgumentException | ExpiredJwtException e) {
+            return false;
+        }
 
-        CheckUserExistEnum success = userDAO.checkUserExist(username);
-        if (success == CheckUserExistEnum.CANNOT_CHECK) throw new NoDataWasReceivedException();
-        return success == CheckUserExistEnum.USER_EXIST;
+        return userDAO.checkUserExist(username);
     }
 
     public String getUsernameFromJws(String jws) {
@@ -80,30 +62,41 @@ public class Token_EJB {
                 .get("username");
     }
 
-    private PublicKey readPublic(String key) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        byte[] encoded = Base64.getDecoder().decode(key);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        PublicKey pubKey =  kf.generatePublic(new X509EncodedKeySpec(encoded));
-        return pubKey;
-    };
-    private PrivateKey readPrivate(String key) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        byte[] encoded = Base64.getDecoder().decode(key);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-        return kf.generatePrivate(keySpec);
-    };
+    private PublicKey readPublic() {
+        try {
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            File file = new File("public.pem");
 
-    private static String readKey(String filename) throws IOException {
-        // Read key from file
-        String strKeyPEM = "";
-        BufferedReader br = new BufferedReader(new FileReader(filename));
-        String line;
-        while ((line = br.readLine()) != null) {
-            strKeyPEM += line + "\n";
+            try (FileReader keyReader = new FileReader(file)) {
+                PEMParser pemParser = new PEMParser(keyReader);
+                JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+                SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(pemParser.readObject());
+                return converter.getPublicKey(publicKeyInfo);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-        br.close();
-        strKeyPEM = strKeyPEM.replace("-----BEGIN PRIVATE KEY-----\n", "");
-        strKeyPEM = strKeyPEM.replace("-----END PRIVATE KEY-----", "");
-        return strKeyPEM;
     }
-}
+
+        private PrivateKey readPrivate () {
+            try {
+                Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+
+                ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+                File file = new File("key.pem");
+                PEMParser pemParser = new PEMParser(new FileReader(file));
+
+                JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+                Object object = pemParser.readObject();
+                KeyPair kp = converter.getKeyPair((PEMKeyPair) object);
+                return kp.getPrivate();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+
+    }

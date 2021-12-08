@@ -1,24 +1,22 @@
 package ejb_beans;
 
-import database.UserDAO;
-import database.UserDataBaseManager;
+import database.userdao.UserDAO;
+import database.userdao.UserDataBaseManager;
 import entities.User;
 import exceptions.DataNotUpdateException;
 import exceptions.NoDataWasReceivedException;
 
 import exceptions.UserAlreadyExistException;
 
+import javax.ejb.Stateless;
 
 
-
+@Stateless
 public class Users_EJB {
     UserDAO userDAO = new UserDataBaseManager();
 
     public void add(String username, String password) throws DataNotUpdateException, UserAlreadyExistException {
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-
+        User newUser = new User(username, password);
         userDAO.add(newUser);
     }
 

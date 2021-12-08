@@ -15,9 +15,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
-@WebServlet("/registration")
+@WebServlet(urlPatterns = "/registration")
 public class RegistrationServlet extends HttpServlet {
     @EJB
     Token_EJB token_ejb;

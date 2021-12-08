@@ -1,4 +1,4 @@
-package database;
+package database.userdao;
 
 import entities.Point;
 import entities.User;
@@ -14,14 +14,22 @@ import utilities.factories.HibernateSessionFactory;
 import java.util.List;
 
 public class UserDataBaseManager implements UserDAO{
-    SessionFactory sessionFactory = HibernateSessionFactory.getSessionFactory();
+    private SessionFactory sessionFactory;
+
+    {
+        try {
+            sessionFactory = HibernateSessionFactory.getSessionFactory();
+        } catch (NoDataWasReceivedException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void add(User user) throws DataNotUpdateException, UserAlreadyExistException {
         if (sessionFactory != null) {
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
-            Query query = session.createNativeQuery("FROM User WHERE username =: username");
+            Query query = session.createQuery("FROM User WHERE username = :username");
             query.setParameter("username", user.getUsername());
             List<Point> userList = query.list();
             if (userList.isEmpty()) {
@@ -31,6 +39,7 @@ public class UserDataBaseManager implements UserDAO{
             }
             transaction.commit();
             session.close();
+            return;
         }
 
         throw new DataNotUpdateException();
@@ -51,7 +60,7 @@ public class UserDataBaseManager implements UserDAO{
         if (sessionFactory != null) {
             try {
                 Session session = sessionFactory.openSession();
-                Query query = session.createNativeQuery("FROM User WHERE username =: username");
+                Query query = session.createQuery("FROM User WHERE username = :username");
                 query.setParameter("username", username);
                 if (query.list().isEmpty()) return false;
                 return true;
@@ -66,7 +75,7 @@ public class UserDataBaseManager implements UserDAO{
         if (sessionFactory != null) {
             try {
                 Session session = sessionFactory.openSession();
-                Query query = session.createNativeQuery("FROM User WHERE username =: username");
+                Query query = session.createQuery("FROM User WHERE username = :username");
                 query.setParameter("username", username);
                 return (User) query.getSingleResult();
             } catch (Exception e) {

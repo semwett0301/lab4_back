@@ -1,4 +1,4 @@
-package database;
+package database.pointdao;
 
 import entities.Point;
 import exceptions.DataNotUpdateException;
@@ -13,7 +13,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class PointDataBaseManager implements PointDAO{
-    SessionFactory sessionFactory = HibernateSessionFactory.getSessionFactory();
+    private SessionFactory sessionFactory;
+
+    {
+        try {
+            sessionFactory = HibernateSessionFactory.getSessionFactory();
+        } catch (NoDataWasReceivedException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void add(Point point) throws DataNotUpdateException {
@@ -35,7 +43,7 @@ public class PointDataBaseManager implements PointDAO{
             Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             try {
-                Query query = session.createNativeQuery("DELETE FROM Point WHERE username = :username");
+                Query query = session.createQuery("DELETE FROM Point WHERE username = :username");
                 query.setParameter("username", username);
 
                 query.executeUpdate();
@@ -54,7 +62,7 @@ public class PointDataBaseManager implements PointDAO{
             SessionFactory sessionFactory = HibernateSessionFactory.getSessionFactory();
             Session session = sessionFactory.openSession();
             try {
-                Query<Point> query = session.createQuery("FROM Point WHERE username =:username");
+                Query<Point> query = session.createQuery("FROM Point WHERE username = :username");
                 query.setParameter("username", username);
                 return query.list();
             } catch (Exception e) {

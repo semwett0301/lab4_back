@@ -23,4 +23,12 @@ public class Point {
     private double r;
     private boolean hit;
     private String username;
+
+    public Point(double x, double y, double r, boolean hit, String username) {
+        this.x = x;
+        this.y = y;
+        this.r = r;
+        this.hit = hit;
+        this.username = username;
+    }
 }

@@ -1,7 +1,7 @@
 package ejb_beans;
 
-import database.PointDAO;
-import database.PointDataBaseManager;
+import database.pointdao.PointDAO;
+import database.pointdao.PointDataBaseManager;
 import entities.Point;
 import exceptions.DataNotUpdateException;
 import exceptions.NoDataWasReceivedException;
@@ -17,13 +17,9 @@ public class Points_EJB {
     PointDAO pointDAO = new PointDataBaseManager();
 
     public void addPoint(double x, double y, double r, String username) throws DataNotUpdateException {
-        Point point = new Point();
-        point.setX(x);
-        point.setY(y);
-        point.setR(r);
-        point.setUsername(username);
+        Point point = new Point(x, y, r,false, username);
 
-        boolean hit = AreaChecker.areaCheck(point.getX(),point.getY(),point.getR());
+        boolean hit = AreaChecker.areaCheck(x, y, r);
         point.setHit(hit);
         pointDAO.add(point);
     }

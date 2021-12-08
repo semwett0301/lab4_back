@@ -1,4 +1,4 @@
-package database;
+package database.pointdao;
 
 import entities.Point;
 import exceptions.DataNotUpdateException;
