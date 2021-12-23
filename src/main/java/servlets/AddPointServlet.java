@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-@WebServlet("/add")
+@WebServlet("/points/adding")
 public class AddPointServlet extends HttpServlet {
     @EJB
     private Token_EJB token_ejb;
@@ -29,10 +29,9 @@ public class AddPointServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("Началось");
         String json = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         JSONObject jsonObject = new JSONObject(json);
-
-        Cookie[] cookies = req.getCookies();
 
         String jws = "";
         double x;
@@ -41,10 +40,7 @@ public class AddPointServlet extends HttpServlet {
 
         try {
             try {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("jws")) jws = cookie.getValue();
-                }
-
+                jws = jsonObject.getString("jws");
                 if (!ValidateToken.validate(resp, jws, token_ejb)) return;
 
                 x = Double.parseDouble(jsonObject.getString("x"));
@@ -52,11 +48,13 @@ public class AddPointServlet extends HttpServlet {
                 r = Double.parseDouble(jsonObject.getString("r"));
             } catch ( Exception e) {
                 resp.sendError(400, "Полученные данные некорректны");
+                e.printStackTrace();
                 return;
             }
             points_ejb.addPoint(x,y,r,token_ejb.getUsernameFromJws(jws));
         } catch (DataNotUpdateException e) {
             resp.sendError(500, "При работе с базой данных возникла ошибка, ваши действия не могут быть сохранены");
+            e.printStackTrace();
         }
     }
 }

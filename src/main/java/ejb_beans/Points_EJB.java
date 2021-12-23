@@ -10,10 +10,11 @@ import utilities.AreaChecker;
 
 import javax.ejb.Stateless;
 import javax.validation.ValidationException;
+import java.io.Serializable;
 import java.util.List;
 
 @Stateless
-public class Points_EJB {
+public class Points_EJB implements Serializable {
     PointDAO pointDAO = new PointDataBaseManager();
 
     public void addPoint(double x, double y, double r, String username) throws DataNotUpdateException {

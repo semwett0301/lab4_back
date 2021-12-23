@@ -9,8 +9,10 @@ public class LoginResponse {
     private boolean passwordProblem = false;
     private boolean loginProblem = false;
     private boolean jwsProblem = false;
+    private String jws = "";
 
-    public LoginResponse() {
+    public LoginResponse(String jws) {
+        this.jws = jws;
         this.login = true;
         this.passwordProblem = false;
         this.loginProblem = false;

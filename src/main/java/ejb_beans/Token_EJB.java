@@ -21,7 +21,7 @@ import java.util.Date;
 @Data
 @Stateless
 @NoArgsConstructor
-public class Token_EJB {
+public class Token_EJB implements Serializable{
     private UserDAO userDAO = new UserDataBaseManager();
     private long limit = 1800000;
     private PublicKey publicKey = readPublic();

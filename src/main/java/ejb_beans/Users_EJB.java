@@ -9,10 +9,11 @@ import exceptions.NoDataWasReceivedException;
 import exceptions.UserAlreadyExistException;
 
 import javax.ejb.Stateless;
+import java.io.Serializable;
 
 
 @Stateless
-public class Users_EJB {
+public class Users_EJB implements Serializable {
     UserDAO userDAO = new UserDataBaseManager();
 
     public void add(String username, String password) throws DataNotUpdateException, UserAlreadyExistException {

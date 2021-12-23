@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-@WebServlet("/login")
+@WebServlet("/users/logging")
 public class LoginServlet extends HttpServlet {
     @EJB
     Token_EJB token_ejb;
@@ -28,15 +28,19 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JSONObject jsonObject = JsonFactory.getJsonFromRequest(req);
+        String json = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        JSONObject jsonObject = new JSONObject(json);
 
         String username;
         String password;
+        String token;
 
         try {
             username = jsonObject.getString("username");
             password = jsonObject.getString("password");
+
         } catch (NullPointerException e) {
+            e.printStackTrace();
             resp.sendError(400, "Полученные данные некорректны");
             return;
         }
@@ -53,10 +57,9 @@ public class LoginServlet extends HttpServlet {
                 }
             }
 
-            resp.getWriter().write(new JSONObject(new LoginResponse()).toString());
-            resp.addCookie(new Cookie("jws", token_ejb.generateToken(username)));
-
+            resp.getWriter().write(new JSONObject(new LoginResponse(token_ejb.generateToken(username))).toString());
         } catch (NoDataWasReceivedException e) {
+            e.printStackTrace();
             resp.sendError(500, "При работе с базой данных возникла ошибка, данные не были получены");
         }
     }
